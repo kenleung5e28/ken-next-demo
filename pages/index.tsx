@@ -13,7 +13,7 @@ export default function Index() {
       </Head>
       <h1>Welcome to Ken's demo web app.</h1>
       {!session &&
-        <a className={styles.btn} onClick={() => signIn('github')}>Sign in</a>
+        <a className={styles.btn} onClick={() => signIn('github', { callbackUrl: 'http://localhost:3000/home' })}>Sign in</a>
       }
       {session &&
         <>

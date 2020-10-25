@@ -1,6 +1,6 @@
 import Head from 'next/head'
-import styles from '../styles/Home.module.css';
 import { signIn, signOut, useSession } from 'next-auth/client';
+import Button from '../components/button';
 
 export default function Index() {
   const [session, loading] = useSession();
@@ -13,12 +13,12 @@ export default function Index() {
       </Head>
       <h1>Welcome to Ken's demo web app.</h1>
       {!session &&
-        <a className={styles.btn} onClick={() => signIn('github', { callbackUrl: 'http://localhost:3000/home' })}>Sign in</a>
+        <Button label="Sign in" onClick={() => signIn('github', { callbackUrl: 'http://localhost:3000/home' })} />
       }
       {session &&
         <>
           <p>Signed in as <em>{session.user.name}</em>.</p>
-          <a className={styles.btn} onClick={() => signOut()}>Sign out</a>
+          <Button label="Sign out" onClick={() => signOut()} />
         </>
       }
     </div>

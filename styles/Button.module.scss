@@ -5,8 +5,7 @@
   background-color: black;
   border-radius: 0.5em;
   padding: 0.5em 1em 0.5em 1em;
-}
-
-.btn:hover {
-  background-color: grey;
+  &:hover {
+    background-color: grey;
+  }
 }

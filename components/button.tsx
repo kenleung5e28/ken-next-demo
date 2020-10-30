@@ -7,5 +7,5 @@ interface ButtonProps {
 }
 
 export default function Button({ label, onClick }: ButtonProps) {
-  return <a className={styles.btn} onClick={onClick}>{label}</a>;
+  return <a className={styles.button} onClick={onClick}>{label}</a>;
 }

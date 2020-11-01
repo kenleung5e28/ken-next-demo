@@ -13,6 +13,7 @@ export const schema = gql`
 
   type Query {
     getProducts: [Product]!
+    findByProductId(productId: ID!): Product
   }
 
   type Mutation {

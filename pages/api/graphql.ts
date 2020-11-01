@@ -4,7 +4,8 @@ import { Connection, createConnection } from 'mongoose';
 import { Decimal } from 'decimal.js';
 import { GraphQLResolveInfo, GraphQLScalarType } from 'graphql';
 import { Kind } from 'graphql/language';
-import productModel, { Product } from '../../models/product';
+import { schema as typeDefs } from '../../server/schema';
+import productModel, { Product } from '../../server/models/product';
 
 type ResolverFn<TParent, TArgs, TReturn> = (parent: TParent, args: TArgs, context: { db: Connection }, info: GraphQLResolveInfo) => Promise<TReturn>;
 
@@ -17,26 +18,6 @@ type Resolvers = {
     addGenericProduct: ResolverFn<{}, Product, Product>,
   },
 }
-
-const typeDefs = gql`
-  scalar Decimal
-
-  type Product {
-    productId: ID!
-    name: String!
-    type: String!
-    stock: Int!
-    price: Decimal!
-  }
-
-  type Query {
-    getProducts: [Product]!
-  }
-
-  type Mutation {
-    addGenericProduct(productId: ID!, name: String!, stock: Int!, price: Decimal!): Product!
-  }
-`;
 
 const resolvers: Resolvers = {
   Decimal: new GraphQLScalarType({

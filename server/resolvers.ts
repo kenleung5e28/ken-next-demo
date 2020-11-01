@@ -3,6 +3,7 @@ import { Connection } from 'mongoose';
 import { GraphQLResolveInfo, GraphQLScalarType } from 'graphql';
 import { Kind } from 'graphql/language';
 import productModel, { Product } from './models/product';
+import bookModel, { Book } from './models/book';
 
 export type ResolverFunc<TParent, TArgs, TReturn> = (parent: TParent, args: TArgs, context: { db: Connection }, info: GraphQLResolveInfo) => Promise<TReturn>;
 
@@ -10,6 +11,7 @@ export type Resolvers = {
   Decimal: GraphQLScalarType,
   Query: {
     getProducts: ResolverFunc<{}, {}, Product[]>,
+    getBooks: ResolverFunc<{}, {}, Book[]>,
     findByProductId: ResolverFunc<{}, { productId: string }, Product | null>,
   },
   Mutation: {
@@ -39,6 +41,11 @@ export const resolvers: Resolvers = {
       const products = productModel(db);
       const allProducts = await products.find().exec();
       return allProducts;
+    },
+    getBooks: async (_parent, _args, { db }, _info) => {
+      const books = bookModel(db);
+      const allBooks = await books.find({ type: 'book' }).exec();
+      return allBooks;
     },
     findByProductId: async (_parent, { productId }, { db }, _info) => {
       const products = productModel(db);

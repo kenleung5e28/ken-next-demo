@@ -6,7 +6,7 @@ import { GraphQLResolveInfo, GraphQLScalarType } from 'graphql';
 import { Kind } from 'graphql/language';
 import productModel, { Product } from '../../models/product';
 
-type Resolvers {
+type Resolvers = {
   Decimal: GraphQLScalarType,
   Query: {
     getProducts: (parent: {}, args: {}, context: { db: Connection }, info: GraphQLResolveInfo) => Promise<Product[]>,

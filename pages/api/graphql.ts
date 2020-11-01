@@ -6,13 +6,15 @@ import { GraphQLResolveInfo, GraphQLScalarType } from 'graphql';
 import { Kind } from 'graphql/language';
 import productModel, { Product } from '../../models/product';
 
+type ResolverFn<TParent, TArgs, TReturn> = (parent: TParent, args: TArgs, context: { db: Connection }, info: GraphQLResolveInfo) => Promise<TReturn>;
+
 type Resolvers = {
   Decimal: GraphQLScalarType,
   Query: {
-    getProducts: (parent: {}, args: {}, context: { db: Connection }, info: GraphQLResolveInfo) => Promise<Product[]>,
+    getProducts: ResolverFn<{}, {}, Product[]>,
   },
   Mutation: {
-    addGenericProduct: (parent: {}, args: Product, context: { db: Connection }, info: GraphQLResolveInfo) => Promise<Product>,
+    addGenericProduct: ResolverFn<{}, Product, Product>,
   },
 }
 

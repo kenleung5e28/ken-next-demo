@@ -1,15 +1,16 @@
 import { ApolloServer, gql } from 'apollo-server-micro';
-import { makeExecutableSchema } from 'graphql-tools';
-import { MongoClient } from 'mongodb';
+import { IResolvers, makeExecutableSchema } from 'graphql-tools';
+import { Connection, createConnection } from 'mongoose';
 import { Decimal } from 'decimal.js';
 import { GraphQLScalarType } from 'graphql';
 import { Kind } from 'graphql/language';
+import productModel, { Product } from '../../models/product';
 
 const typeDefs = gql`
   scalar Decimal
 
   type Product {
-    id: ID!
+    productId: ID!
     name: String!
     type: String!
     stock: Int!
@@ -17,11 +18,15 @@ const typeDefs = gql`
   }
 
   type Query {
-    products: [Product]!
+    getProducts: [Product]!
+  }
+
+  type Mutation {
+    addGenericProduct(productId: ID!, name: String!, stock: Int!, price: Decimal!): Product!
   }
 `;
 
-const resolvers = {
+const resolvers: IResolvers<any, { db: Connection }, any, any> = {
   Decimal: new GraphQLScalarType({
     name: 'Decimal',
     description: 'Decimal custom data type',
@@ -39,38 +44,35 @@ const resolvers = {
     },
   }),
   Query: {
-    async products(parent, args, context, info) {
-      const results = await context.db
-        .collection('products')
-        .find().toArray();
-      return results.map(({ id, name, type, stock, price }) => ({
-        id,
-        name,
-        type,
-        stock,
-        price: new Decimal(price.toString()),
-      }));
+    async getProducts(_parent, _args, { db }, _info): Promise<Product[]> {
+      const products = productModel(db);
+      const allProducts = await products.find().exec();
+      return allProducts;
+    },
+  },
+  Mutation: {
+    async addGenericProduct(_parent, { productId, name, stock, price }, { db }, _info): Promise<Product> {
+      const products = productModel(db);
+      const newProduct = await products.create({ productId, name, type: 'generic', stock, price });
+      return newProduct;
     },
   },
 };
 
 const schema = makeExecutableSchema({ typeDefs, resolvers });
 
-let db = null;
+let db: Connection | null = null;
 
 const apolloServer = new ApolloServer({ 
   schema,
   context: async () => {
     if (!db) {
       try {
-        const client = new MongoClient(process.env.MONGO_CONNECT_STRING, {
+        db = await createConnection(process.env.MONGO_CONNECT_STRING as string, {
           useNewUrlParser: true,
           useUnifiedTopology: true,
+          useCreateIndex: true,
         });
-        if (!client.isConnected()) {
-          await client.connect();
-        }
-        db = client.db(process.env.MONGO_NAME);
       } catch (e) {
         console.log('Error while connecting with GraphQL context: ', e);
       }

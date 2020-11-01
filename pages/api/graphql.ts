@@ -1,10 +1,20 @@
 import { ApolloServer, gql } from 'apollo-server-micro';
-import { IResolvers, makeExecutableSchema } from 'graphql-tools';
+import { makeExecutableSchema } from 'graphql-tools';
 import { Connection, createConnection } from 'mongoose';
 import { Decimal } from 'decimal.js';
-import { GraphQLScalarType } from 'graphql';
+import { GraphQLResolveInfo, GraphQLScalarType } from 'graphql';
 import { Kind } from 'graphql/language';
 import productModel, { Product } from '../../models/product';
+
+type Resolvers {
+  Decimal: GraphQLScalarType,
+  Query: {
+    getProducts: (parent: {}, args: {}, context: { db: Connection }, info: GraphQLResolveInfo) => Promise<Product[]>,
+  },
+  Mutation: {
+    addGenericProduct: (parent: {}, args: Product, context: { db: Connection }, info: GraphQLResolveInfo) => Promise<Product>,
+  },
+}
 
 const typeDefs = gql`
   scalar Decimal
@@ -26,7 +36,7 @@ const typeDefs = gql`
   }
 `;
 
-const resolvers: IResolvers<any, { db: Connection }, any, any> = {
+const resolvers: Resolvers = {
   Decimal: new GraphQLScalarType({
     name: 'Decimal',
     description: 'Decimal custom data type',

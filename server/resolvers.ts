@@ -12,7 +12,8 @@ export type Resolvers = {
   Query: {
     getProducts: ResolverFunc<{}, {}, Product[]>,
     getBooks: ResolverFunc<{}, {}, Book[]>,
-    findByProductId: ResolverFunc<{}, { productId: string }, Product | null>,
+    findProductsByManufacturer: ResolverFunc<{}, { manufacturer: string }, Product[]>,
+    findProductById: ResolverFunc<{}, { productId: string }, Product | null>,
   },
   Mutation: {
     addGenericProduct: ResolverFunc<{}, Product, Product>,
@@ -47,16 +48,16 @@ export const resolvers: Resolvers = {
       const allBooks = await books.find({ type: 'book' }).exec();
       return allBooks;
     },
-    findByProductId: async (_parent, { productId }, { db }, _info) => {
+    findProductById: async (_parent, { productId }, { db }, _info) => {
       const products = productModel(db);
       const product = await products.findOne({ productId }).exec();
       return product;
     },
   },
   Mutation: {
-    async addGenericProduct(_parent, { productId, name, stock, price }, { db }, _info): Promise<Product> {
+    async addGenericProduct(_parent, { productId, name, manufacturer, description, stock, price }, { db }, _info): Promise<Product> {
       const products = productModel(db);
-      const newProduct = await products.create({ productId, name, type: 'generic', stock, price });
+      const newProduct = await products.create({ productId, name, type: 'generic', manufacturer, description, stock, price });
       return newProduct;
     },
   },
